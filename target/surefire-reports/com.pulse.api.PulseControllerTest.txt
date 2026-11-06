@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.pulse.api.PulseControllerTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.771 s -- in com.pulse.api.PulseControllerTest
