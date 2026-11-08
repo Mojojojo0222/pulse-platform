@@ -46,7 +46,7 @@ spec:
       containers:
         - name: pulse-api
           # Replace this with your account/repository URI after pushing to ECR.
-          image: 047090857529.dkr.ecr.ap-south-1.amazonaws.com/puls-api:does-not-exists
+          image: 047090857529.dkr.ecr.ap-south-1.amazonaws.com/pulse-api:1.0.1
           imagePullPolicy: Always
           ports:
             - name: http
@@ -54,7 +54,7 @@ spec:
               protocol: TCP
           env:
             - name: APP_VERSION
-              value: "failure test"
+              value: "1.0.1"
             - name: RELEASE
               value: "gitops-r1"
           startupProbe:
