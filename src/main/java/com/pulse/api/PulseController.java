@@ -23,6 +23,8 @@ public class PulseController {
                 "version", pulseService.version(),
                 "endpoints", Map.of(
                         "pulse", "/api/v1/pulse",
+                        "apps", "/api/v1/apps",
+                        "appMetrics", "/api/v1/apps/{name}/metrics",
                         "liveness", "/health/live",
                         "readiness", "/health/ready",
                         "actuator", "/actuator/health"

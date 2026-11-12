@@ -21,3 +21,13 @@ management:
 
 app:
   version: ${APP_VERSION:1.0.0}
+
+pulse:
+  prometheus:
+    base-url: ${PULSE_PROMETHEUS_URL:http://localhost:9090}
+    connect-timeout-ms: ${PULSE_PROMETHEUS_CONNECT_TIMEOUT_MS:2000}
+    read-timeout-ms: ${PULSE_PROMETHEUS_READ_TIMEOUT_MS:5000}
+    query-window: ${PULSE_PROMETHEUS_QUERY_WINDOW:5m}
+  apps:
+    todoapp:
+      job: todoapp

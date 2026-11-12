@@ -1,0 +1,15 @@
+# Ignore Maven build output (caused the stale-jar bug once — never track it again)
+target/
+
+# Terraform state (safety net if terraform is ever run here)
+terraform.tfstate*
+
+# IDE / OS noise
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Logs
+*.log
+nohup.out
