@@ -5,13 +5,22 @@ local development -> Docker -> Amazon ECR -> Amazon EKS -> Argo CD.
 
 ## What it does
 
+Pulse is the evidence plane of the platform: it answers *is it healthy*
+(Prometheus) and *did the deployment cause it* (Kubernetes) for registered
+applications, from first GET to an honest snapshot.
+
 - `GET /` — service overview and endpoint catalogue
 - `GET /api/v1/pulse` — application status, version, instance hostname and timestamp
-- `GET /health/live` — Kubernetes liveness endpoint
-- `GET /health/ready` — Kubernetes readiness endpoint
-- `GET /actuator/health` — Spring Boot health endpoint
+- `GET /api/v1/apps` — config-driven application registry (no Prometheus needed)
+- `GET /api/v1/apps/{name}/metrics` — snapshot: target, requestRate, errorRatio, avgLatency, p95 (404 unknown app · 503 Prometheus down · 502 query failed)
+- `GET /api/v1/deployments` — deployments in `pulse.kubernetes.namespace` (403/502/503)
+- `GET /api/v1/deployments/{name}` — ClusterSnapshot: state, revision, pods, events, notes (404/503/504; partial evidence returns 200 with `complete: false`)
+- `GET /health/live`, `GET /health/ready` — Kubernetes probes
+- `GET /actuator/health`, `/actuator/prometheus` — Spring Boot health + metrics
 
-The first release is intentionally stateless. It has no database, cache, credentials or external service dependency.
+The service is stateless: no database, cache or credentials of its own. It reads
+Prometheus and the Kubernetes API server with **read-only** credentials
+(`k8s/rbac.yaml`: get/list on deployments, pods, events — no watch).
 
 ## Requirements
 
@@ -21,11 +30,16 @@ The first release is intentionally stateless. It has no database, cache, credent
 ## Option A: Run with Maven
 
 ```bash
-mvn test
+mvn test            # 77 tests
 mvn spring-boot:run
 ```
 
 Open `http://localhost:8080/api/v1/pulse`.
+
+Configuration lives under `pulse:` in `src/main/resources/application.yml`
+(registry + Prometheus URL + `pulse.kubernetes.*`). Environment overrides:
+`PULSE_PROMETHEUS_URL`, `SERVER_PORT`, and for the observer `PULSE_KUBERNETES_ENABLED/AUTH_MODE/URL/NAMESPACE/TOKEN_FILE/CA_CERT_FILE/KUBECONFIG/DEADLINE_MS`. The Kubernetes observer is **disabled by default**; enabling
+it requires explicit `AUTH_MODE=in-cluster|kubeconfig` (fail-fast, no fallback).
 
 ## Option B: Build and run with Docker
 
@@ -81,16 +95,18 @@ Update the `image:` value in `k8s/deployment.yaml` with the ECR URI, then:
 
 ```bash
 kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/rbac.yaml
 kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/service.yaml
-kubectl -n pulse rollout status deployment/pulse-api
-kubectl -n pulse get pods,svc -o wide
+kubectl apply -f k8s/pdb.yaml
+kubectl -n pulse-system rollout status deployment/pulse-api
+kubectl -n pulse-system get pods,svc -o wide
 ```
 
 Test through port-forward:
 
 ```bash
-kubectl -n pulse port-forward svc/pulse-api 8080:80
+kubectl -n pulse-system port-forward svc/pulse-api 8080:80
 ```
 
 In another terminal:
@@ -111,16 +127,23 @@ curl http://localhost:8080/api/v1/pulse
 ## Repository layout
 
 ```text
-pulse-application/
+application/
 ├── Dockerfile
 ├── docker-compose.yml
 ├── pom.xml
 ├── src/
 │   ├── main/java/com/pulse/
+│   │   ├── api/          PulseController, AppMetricsController, KubernetesController
+│   │   ├── config/       PulseProperties (pulse.apps / prometheus / kubernetes)
+│   │   ├── kubernetes/   Deadline, client interface, HTTP client, auth
+│   │   ├── prometheus/   PrometheusClient
+│   │   └── service/      AppMetricsService, ClusterObservationService
 │   ├── main/resources/application.yml
-│   └── test/java/com/pulse/
+│   └── test/java/com/pulse/   77 tests
 └── k8s/
-    ├── namespace.yaml
+    ├── namespace.yaml     pulse-system
+    ├── rbac.yaml          pulse-observer SA + Role (get/list) + RoleBinding
     ├── deployment.yaml
-    └── service.yaml
+    ├── service.yaml
+    └── pdb.yaml
 ```

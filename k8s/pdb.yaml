@@ -2,7 +2,7 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: pulse-api-pdb
-  namespace: pulse
+  namespace: pulse-system
 spec:
   minAvailable: 1
   selector:

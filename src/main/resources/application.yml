@@ -28,6 +28,18 @@ pulse:
     connect-timeout-ms: ${PULSE_PROMETHEUS_CONNECT_TIMEOUT_MS:2000}
     read-timeout-ms: ${PULSE_PROMETHEUS_READ_TIMEOUT_MS:5000}
     query-window: ${PULSE_PROMETHEUS_QUERY_WINDOW:5m}
+  kubernetes:
+    enabled: ${PULSE_KUBERNETES_ENABLED:false}
+    auth-mode: ${PULSE_KUBERNETES_AUTH_MODE:in-cluster}
+    base-url: ${PULSE_KUBERNETES_URL:}
+    namespace: ${PULSE_KUBERNETES_NAMESPACE:pulse-system}
+    token-file: ${PULSE_KUBERNETES_TOKEN_FILE:/var/run/secrets/kubernetes.io/serviceaccount/token}
+    ca-cert-file: ${PULSE_KUBERNETES_CA_CERT_FILE:/var/run/secrets/kubernetes.io/serviceaccount/ca.crt}
+    kubeconfig-path: ${PULSE_KUBECONFIG:}
+    connect-timeout-ms: ${PULSE_KUBERNETES_CONNECT_TIMEOUT_MS:2000}
+    read-timeout-ms: ${PULSE_KUBERNETES_READ_TIMEOUT_MS:5000}
+    deadline-ms: ${PULSE_KUBERNETES_DEADLINE_MS:8000}
+    page-size: ${PULSE_KUBERNETES_PAGE_SIZE:500}
   apps:
     todoapp:
       job: todoapp

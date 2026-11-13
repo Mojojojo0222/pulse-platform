@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pulse-api
-  namespace: pulse
+  namespace: pulse-system
   labels:
     app.kubernetes.io/name: pulse-api
     app.kubernetes.io/part-of: pulse-platform
@@ -24,6 +24,7 @@ spec:
         app.kubernetes.io/part-of: pulse-platform
     spec:
       terminationGracePeriodSeconds: 30
+      serviceAccountName: pulse-observer
       securityContext:
         runAsNonRoot: true
         runAsUser: 10001

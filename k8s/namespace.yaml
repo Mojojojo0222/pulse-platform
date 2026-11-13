@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: pulse
+  name: pulse-system
   labels:
     app.kubernetes.io/part-of: pulse-platform
     pod-security.kubernetes.io/enforce: restricted

@@ -25,6 +25,8 @@ public class PulseController {
                         "pulse", "/api/v1/pulse",
                         "apps", "/api/v1/apps",
                         "appMetrics", "/api/v1/apps/{name}/metrics",
+                        "deployments", "/api/v1/deployments",
+                        "deploymentDetail", "/api/v1/deployments/{name}",
                         "liveness", "/health/live",
                         "readiness", "/health/ready",
                         "actuator", "/actuator/health"

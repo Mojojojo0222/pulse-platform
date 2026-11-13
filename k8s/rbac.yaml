@@ -1,0 +1,46 @@
+# Pulse observer RBAC — read-only, no watch (Phase 3 pulls on demand).
+# Scope: exactly the three reads ClusterObservationService performs.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pulse-observer
+  namespace: pulse-system
+  labels:
+    app.kubernetes.io/name: pulse-api
+    app.kubernetes.io/part-of: pulse-platform
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pulse-observer
+  namespace: pulse-system
+  labels:
+    app.kubernetes.io/name: pulse-api
+    app.kubernetes.io/part-of: pulse-platform
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pulse-observer
+  namespace: pulse-system
+  labels:
+    app.kubernetes.io/name: pulse-api
+    app.kubernetes.io/part-of: pulse-platform
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pulse-observer
+subjects:
+  - kind: ServiceAccount
+    name: pulse-observer
+    namespace: pulse-system

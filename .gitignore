@@ -13,3 +13,5 @@ terraform.tfstate*
 # Logs
 *.log
 nohup.out
+
+docs
